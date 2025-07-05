@@ -13,7 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const databaseURL = "postgres://postgres:postgres@localhost:5432/gator"
+//databaseURL = "postgres://postgres:postgres@localhost:5432/gator"
 
 type state struct {
 	db  *database.Queries
@@ -48,6 +48,9 @@ func main() {
 	cmds.register("register", handlerRegister)
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
+	cmds.register("agg", handlerAgg)
+	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("feeds", handlerFeeds)
 
 	if len(os.Args) < 2 {
 		log.Fatal("Usage: CLI <command> [args...]")
