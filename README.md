@@ -7,13 +7,6 @@ Before you begin, ensure you have met the following requirements:
 You have installed the latest version of Go
 You have a PostgreSQL database set up and running
 
-##Installing Gator
-To install Gator, follow these steps:
-
-```
-go install github.com/dr-check/blog-aggregator@latest
-```
-
 ## Configuration
 
 Create a JSON configuration file named config.json in the same directory as Gator. The file should have the following structure:
@@ -31,17 +24,17 @@ Replace your_postgresql_connection_string with your actual PostgreSQL connection
 
 Gator provides several commands for managing users, feeds, and posts:
 
-*`login`: Log in as a user
-*`register`: Register a new user
-*`reset`: Reset the database
-*`users`: List all users
-*`agg`: Fetch RSS feeds
-*`addfeed`: Add a new RSS feed (requires login)
-*`feeds`: List all feeds
-*`follow`: Follow a feed (requires login)
-*`following`: List followed feeds (requires login)
-*`unfollow`: Unfollow a feed (requires login)
-*`browse`: Browse posts
+* `login`: Log in as a user
+* `register`: Register a new user
+* `reset`: Reset the database
+* `users`: List all users
+* `agg`: Fetch RSS feeds
+* `addfeed`: Add a new RSS feed (requires login)
+* `feeds`: List all feeds
+* `follow`: Follow a feed (requires login)
+* `following`: List followed feeds (requires login)
+* `unfollow`: Unfollow a feed (requires login)
+* `browse`: Browse posts
 
 For commands that require login, ensure you're logged in first using the login command.
 
