@@ -43,10 +43,6 @@ Gator provides several commands for managing users, feeds, and posts:
 *`unfollow`: Unfollow a feed (requires login)
 *`browse`: Browse posts
 
-To use a command, run:
-
-`go run . [command]`
-
 For commands that require login, ensure you're logged in first using the login command.
 
 ## Note on Security
