@@ -118,7 +118,7 @@ func (q *Queries) GetFeeds(ctx context.Context) ([]Feed, error) {
 const getNextFeedToFetch = `-- name: GetNextFeedToFetch :one
 SELECT id, created_at, updated_at, last_fetched_at, name, url, user_id 
 FROM feeds
-ORDER BY last_fetched_at ASC NULLS LAST
+ORDER BY last_fetched_at ASC NULLS FIRST
 LIMIT 1
 `
 
@@ -141,6 +141,7 @@ const markFeedFetched = `-- name: MarkFeedFetched :exec
 UPDATE feeds
 SET last_fetched_at = NOW(), updated_at = NOW()
 WHERE id = $1
+RETURNING id, created_at, updated_at, last_fetched_at, name, url, user_id
 `
 
 func (q *Queries) MarkFeedFetched(ctx context.Context, id uuid.UUID) error {

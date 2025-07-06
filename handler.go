@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"strconv"
 	"time"
 
 	"github.com/dr-check/blog-aggregator/internal/database"
@@ -41,6 +43,7 @@ func printFeed(feed database.Feed) {
 	fmt.Printf(" * Name:	%v\n", feed.Name)
 	fmt.Printf(" * URL:	%v\n", feed.Url)
 	fmt.Printf(" * User:	%v\n", feed.UserID)
+	fmt.Printf(" * LastFetchedAt: %v\n", feed.LastFetchedAt.Time)
 }
 
 func handlerRegister(s *state, cmd command) error {
@@ -104,15 +107,22 @@ func handlerUsers(s *state, cmd command) error {
 }
 
 func handlerAgg(s *state, cmd command) error {
-	if len(cmd.Args) != 0 {
-		return fmt.Errorf("please enter a proper command: %v", cmd.Name)
+	if len(cmd.Args) < 1 || len(cmd.Args) > 2 {
+		return fmt.Errorf("please enter a proper command: %v <time_between_reqs>", cmd.Name)
 	}
-	rFeed, err := fetchFeed(context.TODO(), "https://www.wagslane.dev/index.xml")
+
+	timeReq, err := time.ParseDuration(cmd.Args[0])
 	if err != nil {
-		return err
+		return fmt.Errorf("invalid duration: %w", err)
 	}
-	fmt.Println(rFeed)
-	return nil
+
+	log.Printf("parsing feeds every %s...", timeReq)
+
+	ticker := time.NewTicker(timeReq)
+
+	for ; ; <-ticker.C {
+		scrapeFeeds(s)
+	}
 }
 
 func handlerAddFeed(s *state, cmd command, user database.User) error {
@@ -234,5 +244,34 @@ func handlerUnfollow(s *state, cmd command, user database.User) error {
 	}
 
 	fmt.Println("successfully unfollowed feed")
+	return nil
+}
+
+func handlerBrowse(s *state, cmd command, user database.User) error {
+	limit := 2
+	if len(cmd.Args) == 1 {
+		if specifiedLimit, err := strconv.Atoi(cmd.Args[0]); err == nil {
+			limit = specifiedLimit
+		} else {
+			return fmt.Errorf("invalid limit: %w", err)
+		}
+	}
+
+	posts, err := s.db.GetPostsForUser(context.Background(), database.GetPostsForUserParams{
+		UserID: user.ID,
+		Limit:  int32(limit),
+	})
+	if err != nil {
+		return fmt.Errorf("unable to get posts for user: %w", err)
+	}
+
+	fmt.Printf("found %d posts for user %s:\n", len(posts), user.Name)
+	for _, post := range posts {
+		fmt.Printf("%s from %s\n", post.PublishedAt.Time.Format("Mon Jan 2"), post.FeedName)
+		fmt.Printf("--- %s ---\n", post.Title)
+		fmt.Printf("     %v\n", post.Description.String)
+		fmt.Printf("Link: %s\n", post.Url)
+		fmt.Println("=====================================")
+	}
 	return nil
 }
